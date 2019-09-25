@@ -22,7 +22,6 @@ addpath('../OFFICIAL_SUNRGBD/SUNRGBDtoolbox/readData')
 %% V2 3DBB annotations (overwrites SUNRGBDMeta)
 load('../OFFICIAL_SUNRGBD/SUNRGBDMeta3DBB_v2.mat');
 load('../OFFICIAL_SUNRGBD/SUNRGBDMeta2DBB_v2.mat');
-load('../OFFICIAL_SUNRGBD/SUNRGBDtoolbox/Metadata/SUNRGBD2Dseg.mat')
 %% Create folders
 depth_folder = '../sunrgbd_trainval/depth/';
 image_folder = '../sunrgbd_trainval/image/';
@@ -76,11 +75,6 @@ for j = 1:length(data.groundtruth3DBB)
     fprintf(fid, '%s %d %d %d %d %f %f %f %f %f %f %f %f\n', classname, box2d(1), box2d(2), box2d(3), box2d(4), centroid(1), centroid(2), centroid(3), coeffs(1), coeffs(2), coeffs(3), orientation(1), orientation(2));
 end
 fclose(fid);
-
-% Write 2D image segmentation label
-anno2d = SUNRGBD2Dseg(imageId);
-seg_label = anno2d.seglabel;
-parsave(strcat(seg_label_folder, mat_filename), seg_label);
 
 catch
 end

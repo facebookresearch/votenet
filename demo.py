@@ -88,7 +88,8 @@ if __name__=='__main__':
     # Model inference
     inputs = {'point_clouds': torch.from_numpy(pc).to(device)}
     tic = time.time()
-    end_points = net(inputs)
+    with torch.no_grad():
+        end_points = net(inputs)
     toc = time.time()
     print('Inference time: %f'%(toc-tic))
     end_points['point_clouds'] = inputs['point_clouds']

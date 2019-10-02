@@ -265,7 +265,8 @@ def evaluate_one_epoch():
         
         # Forward pass
         inputs = {'point_clouds': batch_data_label['point_clouds']}
-        end_points = net(inputs)
+        with torch.no_grad():
+            end_points = net(inputs)
 
         # Compute loss
         for key in batch_data_label:

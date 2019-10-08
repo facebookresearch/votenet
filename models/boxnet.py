@@ -18,7 +18,7 @@ from loss_helper_boxnet import get_loss
 
 
 class BoxNet(nn.Module):
-    r"""
+    """
         A deep neural network for 3D object detection with end-to-end optimizable hough voting.
 
         Parameters

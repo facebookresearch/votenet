@@ -36,5 +36,3 @@ pc_util.write_ply_color(scene_points, semantic_labels, os.path.join(output_folde
 from model_util_scannet import ScannetDatasetConfig
 DC = ScannetDatasetConfig()
 print(instance_bboxes.shape)
-bbox, bbox_color = DC.param2bbox(instance_bboxes, True)
-pc_util.write_ply_color(bbox, bbox_color, os.path.join(output_folder, 'scene_bbox.obj'))

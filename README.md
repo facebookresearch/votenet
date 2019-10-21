@@ -23,7 +23,7 @@ If you find our work useful in your research, please consider citing:
 
 ## Installation
 
-Install [Pytorch](https://pytorch.org/get-started/locally/) and [Tensorflow](https://github.com/tensorflow/tensorflow) (for TensorBoard). It is required that you have access to GPUs. Matlab is required to prepare data for SUN RGB-D. The code is tested with Ubuntu 18.04, Pytorch v1.1, TensorFlow v1.14, CUDA 10.0 and cuDNN v7.4.
+Install [Pytorch](https://pytorch.org/get-started/locally/) and [Tensorflow](https://github.com/tensorflow/tensorflow) (for TensorBoard). It is required that you have access to GPUs. Matlab is required to prepare data for SUN RGB-D. The code is tested with Ubuntu 18.04, Pytorch v1.1, TensorFlow v1.14, CUDA 10.0 and cuDNN v7.4. Note: there is some incompatibility with newer version of Pytorch (e.g. v1.3), which is to be fixed.
 
 Compile the CUDA layers for [PointNet++](http://arxiv.org/abs/1706.02413), which we used in the backbone network:
 
@@ -35,9 +35,9 @@ To see if the compilation is successful, try to run `python models/votenet.py` t
 Install the following Python dependencies (with `pip install`):
 
     matplotlib
-    cv2
+    opencv-python
     plyfile
-    trimesh>=2.35.39,<2.35.40
+    'trimesh>=2.35.39,<2.35.40'
 
 ## Run demo
 
@@ -46,13 +46,13 @@ Unzip the file under the project root path (`/path/to/project/demo_files`) and t
 
     python demo.py
 
-The demo uses a pre-trained model (on SUN RGB-D) to detect objects in a point cloud from an indoor room of a table and a few chairs (from SUN RGB-D val set). You can use 3D visualization software such as the [MeshLab](http://www.meshlab.net/) to open the dumped file under `demo_files/sunrgbd` to see the 3D detection output. Specifically, open `***_pc.ply` and `***_pred_confident_nms_bbox.ply` to see the input point cloud and predicted 3D bounding boxes.
+The demo uses a pre-trained model (on SUN RGB-D) to detect objects in a point cloud from an indoor room of a table and a few chairs (from SUN RGB-D val set). You can use 3D visualization software such as the [MeshLab](http://www.meshlab.net/) to open the dumped file under `demo_files/sunrgbd_results` to see the 3D detection output. Specifically, open `***_pc.ply` and `***_pred_confident_nms_bbox.ply` to see the input point cloud and predicted 3D bounding boxes.
 
 You can also run the following command to use another pretrained model on a ScanNet:
 
     python demo.py --dataset scannet --num_point 40000
 
-Detection results will be dumped to `demo_files/scannet`.
+Detection results will be dumped to `demo_files/scannet_results`.
 
 ## Training and evaluating
 
@@ -99,3 +99,6 @@ We want to thank Erik Wijmans for his PointNet++ implementation in Pytorch ([ori
 
 ## License
 votenet is relased under the MIT License. See the [LICENSE file](https://arxiv.org/pdf/1904.09664.pdf) for more details.
+
+## Change log
+10/20/2019: Fixed a bug of the 3D interpolation customized ops (corrected gradient computation). Re-training the model after the fix slightly improves mAP (less than 1 point).

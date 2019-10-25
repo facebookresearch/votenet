@@ -379,8 +379,13 @@ def write_bbox(scene_bbox, out_filename):
     scene = trimesh.scene.Scene()
     for box in scene_bbox:
         scene.add_geometry(convert_box_to_trimesh_fmt(box))        
-    
-    mesh_list = trimesh.util.concatenate(scene.dump())
+    scene_dump = scene.dump()
+    print('Length of scene dump {}'.format(len(scene_dump)))
+    try:
+        mesh_list = trimesh.util.concatenate(scene_dump)
+    except Exception as e:
+        print('Failed to concatenate mesh list with error {}'.format(e))
+        mesh_list = scene_dump
     # save to ply file    
     trimesh.io.export.export_mesh(mesh_list, out_filename, file_type='ply')
     

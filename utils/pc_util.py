@@ -424,6 +424,7 @@ def write_oriented_bbox(scene_bbox, out_filename):
         scene.add_geometry(convert_oriented_box_to_trimesh_fmt(box))        
     
     #mesh_list = trimesh.util.concatenate(scene.dump())
+    print('Scene has type {}'.format(type(scene)))
     scene_dump = scene.dump()
     print('Length of scene dump {}'.format(len(scene_dump)))
     try:

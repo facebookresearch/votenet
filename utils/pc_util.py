@@ -426,15 +426,7 @@ def write_oriented_bbox(scene_bbox, out_filename):
         scene.add_geometry(geom)
         scene_list.append(geom)        
     
-    #mesh_list = trimesh.util.concatenate(scene.dump())
-    print('Scene has type {}'.format(type(scene)))
-    print('Scene validity {}'.format(scene.is_valid))
-    #scene_dump = scene.dump()
-    #print('Length of scene dump {}'.format(len(scene_dump)))
-    try:
-        mesh_list = trimesh.util.concatenate(scene_list)
-    except Exception as e:
-        print('Failed to concatenate mesh list with error {}'.format(e))
+    mesh_list = trimesh.util.concatenate(scene_list)
     # save to ply file    
     trimesh.io.export.export_mesh(mesh_list, out_filename, file_type='ply')
     
@@ -498,9 +490,7 @@ def write_lines_as_cylinders(pcl, filename, rad=0.005, res=64):
         height = np.sqrt(np.dot(vec, vec))
         scene.add_geometry(trimesh.creation.cylinder(radius=rad, height=height, sections=res, transform=M))
         scene_list.append(trimesh.creation.cylinder(radius=rad, height=height, sections=res, transform=M))
-    print('Scene has type {}'.format(type(scene)))
-    print('Scene validity {}'.format(scene.is_valid))
-    #scene_list = scene.dump()
+    #scene_list = scene.dump() #CH: this line was failing so I redid this a bit
     mesh_list = trimesh.util.concatenate(scene_list)
     file_name = '%s.ply'%(filename)
     trimesh.io.export.export_mesh(mesh_list, file_name, file_type='ply')

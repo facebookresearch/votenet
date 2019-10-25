@@ -420,18 +420,21 @@ def write_oriented_bbox(scene_bbox, out_filename):
         return box_trimesh_fmt
 
     scene = trimesh.scene.Scene()
+    scene_list = []
     for box in scene_bbox:
-        scene.add_geometry(convert_oriented_box_to_trimesh_fmt(box))        
+        geom = convert_oriented_box_to_trimesh_fmt(box)
+        scene.add_geometry(geom)
+        scene_list.append(geom)        
     
     #mesh_list = trimesh.util.concatenate(scene.dump())
     print('Scene has type {}'.format(type(scene)))
-    scene_dump = scene.dump()
-    print('Length of scene dump {}'.format(len(scene_dump)))
+    print('Scene validity {}'.format(scene.is_valid))
+    #scene_dump = scene.dump()
+    #print('Length of scene dump {}'.format(len(scene_dump)))
     try:
-        mesh_list = trimesh.util.concatenate(scene_dump)
+        mesh_list = trimesh.util.concatenate(scene_list)
     except Exception as e:
         print('Failed to concatenate mesh list with error {}'.format(e))
-        mesh_list = scene_dump
     # save to ply file    
     trimesh.io.export.export_mesh(mesh_list, out_filename, file_type='ply')
     
@@ -485,6 +488,7 @@ def write_lines_as_cylinders(pcl, filename, rad=0.005, res=64):
         res: number of sections used to create the cylinder
     """
     scene = trimesh.scene.Scene()
+    scene_list = []
     for src,tgt in pcl:
         # compute line
         vec = tgt - src
@@ -493,8 +497,14 @@ def write_lines_as_cylinders(pcl, filename, rad=0.005, res=64):
         M[:3,3] = 0.5*src + 0.5*tgt
         height = np.sqrt(np.dot(vec, vec))
         scene.add_geometry(trimesh.creation.cylinder(radius=rad, height=height, sections=res, transform=M))
-    mesh_list = trimesh.util.concatenate(scene.dump())
-    trimesh.io.export.export_mesh(mesh_list, '%s.ply'%(filename), file_type='ply')
+        scene_list.append(trimesh.creation.cylinder(radius=rad, height=height, sections=res, transform=M))
+    print('Scene has type {}'.format(type(scene)))
+    print('Scene validity {}'.format(scene.is_valid))
+    #scene_list = scene.dump()
+    mesh_list = trimesh.util.concatenate(scene_list)
+    file_name = '%s.ply'%(filename)
+    trimesh.io.export.export_mesh(mesh_list, file_name, file_type='ply')
+    print('Exported mesh to {}'.format(file_name))
 
 # ----------------------------------------
 # Testing
@@ -507,7 +517,7 @@ if __name__ == '__main__':
     ############
     pcl = np.random.rand(32, 2, 3)
     write_lines_as_cylinders(pcl, 'point_connectors')
-    input()
+    #input()
     
    
     scene_bbox = np.zeros((1,7))

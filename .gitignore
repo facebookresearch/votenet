@@ -1,2 +1,4 @@
 demo_files/*
 scratch/*
+.DS_Store
+*.ply

@@ -17,6 +17,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default='sunrgbd', help='Dataset: sunrgbd or scannet [default: sunrgbd]')
 parser.add_argument('--num_point', type=int, default=20000, help='Point Number [default: 20000]')
 parser.add_argument('--input_pc_path', type=str, help='Point cloud to run prediction on')
+parser.add_argument('--output_dir', type=str, help='Directory to dump outputs to')
 FLAGS = parser.parse_args()
 
 import torch
@@ -102,11 +103,14 @@ if __name__=='__main__':
     end_points['point_clouds'] = inputs['point_clouds']
     pred_map_cls = parse_predictions(end_points, eval_config_dict)
     print('Finished detection. %d object detected.'%(len(pred_map_cls[0])))
-    if FLAGS.input_pc_path is not None:
-        base_dir = os.path.dirname(FLAGS.input_pc_path)
-        dump_dir = os.path.join(base_dir, 'inference_output')
+    if FLAGS.output_dir is not None:
+        dump_dir = FLAGS.output_dir
     else:
-        dump_dir = os.path.join(demo_dir, '%s_results'%(FLAGS.dataset))
+        if FLAGS.input_pc_path is not None:
+            base_dir = os.path.dirname(FLAGS.input_pc_path)
+            dump_dir = os.path.join(base_dir, 'inference_output')
+        else:
+            dump_dir = os.path.join(demo_dir, '%s_results'%(FLAGS.dataset))
     if not os.path.exists(dump_dir): os.mkdir(dump_dir) 
     MODEL.dump_results(end_points, dump_dir, DC, True)
     print('Dumped detection results to folder %s'%(dump_dir))

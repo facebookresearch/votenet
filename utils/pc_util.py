@@ -194,7 +194,7 @@ def read_ply(filename):
     """ read XYZ point cloud from filename PLY file """
     plydata = PlyData.read(filename)
     pc = plydata['vertex'].data
-    if len(pc[0]) == 5:
+    if len(pc[0]) == 6:
         pc_array = np.array([[x, y, z] for x,y,z, red, green,blue in pc]) # load with rgb
     elif len(pc[0]) == 3:
         pc_array = np.array([[x, y, z] for x,y,z, in pc])

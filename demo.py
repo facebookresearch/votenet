@@ -16,6 +16,7 @@ import time
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default='sunrgbd', help='Dataset: sunrgbd or scannet [default: sunrgbd]')
 parser.add_argument('--num_point', type=int, default=20000, help='Point Number [default: 20000]')
+parser.add_argument('--input_pc_path', type=str, help='Point cloud to run prediction on')
 FLAGS = parser.parse_args()
 
 import torch
@@ -47,12 +48,18 @@ if __name__=='__main__':
         sys.path.append(os.path.join(ROOT_DIR, 'sunrgbd'))
         from sunrgbd_detection_dataset import DC # dataset config
         checkpoint_path = os.path.join(demo_dir, 'pretrained_votenet_on_sunrgbd.tar')
-        pc_path = os.path.join(demo_dir, 'input_pc_sunrgbd.ply')
+        if FLAGS.input_pc_path is not None:
+            pc_path = FLAGS.input_pc_path
+        else:
+            pc_path = os.path.join(demo_dir, 'input_pc_sunrgbd.ply')
     elif FLAGS.dataset == 'scannet':
         sys.path.append(os.path.join(ROOT_DIR, 'scannet'))
         from scannet_detection_dataset import DC # dataset config
         checkpoint_path = os.path.join(demo_dir, 'pretrained_votenet_on_scannet.tar')
-        pc_path = os.path.join(demo_dir, 'input_pc_scannet.ply')
+        if FLAGS.input_pc_path is not None:
+            pc_path = FLAGS.input_pc_path
+        else:
+            pc_path = os.path.join(demo_dir, 'input_pc_scannet.ply')
     else:
         print('Unkown dataset %s. Exiting.'%(DATASET))
         exit(-1)
@@ -95,8 +102,11 @@ if __name__=='__main__':
     end_points['point_clouds'] = inputs['point_clouds']
     pred_map_cls = parse_predictions(end_points, eval_config_dict)
     print('Finished detection. %d object detected.'%(len(pred_map_cls[0])))
-  
-    dump_dir = os.path.join(demo_dir, '%s_results'%(FLAGS.dataset))
+    if FLAGS.input_pc_path is not None:
+        base_dir = os.path.dirname(FLAGS.input_pc_path)
+        dump_dir = os.path.join(base_dir, 'inference_output')
+    else:
+        dump_dir = os.path.join(demo_dir, '%s_results'%(FLAGS.dataset))
     if not os.path.exists(dump_dir): os.mkdir(dump_dir) 
     MODEL.dump_results(end_points, dump_dir, DC, True)
     print('Dumped detection results to folder %s'%(dump_dir))

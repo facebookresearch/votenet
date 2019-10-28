@@ -490,7 +490,6 @@ def write_lines_as_cylinders(pcl, filename, rad=0.005, res=64):
         height = np.sqrt(np.dot(vec, vec))
         scene.add_geometry(trimesh.creation.cylinder(radius=rad, height=height, sections=res, transform=M))
         scene_list.append(trimesh.creation.cylinder(radius=rad, height=height, sections=res, transform=M))
-    #scene_list = scene.dump() #CH: this line was failing so I redid this a bit
     mesh_list = trimesh.util.concatenate(scene_list)
     file_name = '%s.ply'%(filename)
     trimesh.io.export.export_mesh(mesh_list, file_name, file_type='ply')

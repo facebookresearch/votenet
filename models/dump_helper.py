@@ -97,7 +97,7 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
                 print('Confident indices {}'.format(confident_nms_indices))
                 print('Exceeds confident nms threshold: {}'.format(obbs[confident_nms_indices,:].shape))
                 confinds = []
-                for i in len(confident_nms_indices):
+                for i in range(len(confident_nms_indices)):
                     if confident_nms_indices[i]:
                         confinds.append(i)
                 print('Confinds {}'.format(confinds))

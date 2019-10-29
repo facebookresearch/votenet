@@ -12,6 +12,7 @@ import numpy as np
 import argparse
 import importlib
 import time
+import json
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default='sunrgbd', help='Dataset: sunrgbd or scannet [default: sunrgbd]')
@@ -115,3 +116,6 @@ if __name__=='__main__':
     MODEL.dump_results(end_points, dump_dir, DC, True)
     print('End points keys {}'.format(end_points.keys()))
     print('Dumped detection results to folder %s'%(dump_dir))
+    raw_output_path = os.path.join(dump_dir, 'raw_outputs.json')
+    with open(raw_output_path, 'w+') as f:
+        json.dump(end_points, f)

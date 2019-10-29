@@ -79,7 +79,7 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
         # Dump predicted bounding boxes
         if np.sum(objectness_prob>DUMP_CONF_THRESH)>0:
             num_proposal = pred_center.shape[1]
-            obbs = []
+            obbs = [] # list of object bounding boxes
             for j in range(num_proposal):
                 obb = config.param2obb(pred_center[i,j,0:3], pred_heading_class[i,j], pred_heading_residual[i,j],
                                 pred_size_class[i,j], pred_size_residual[i,j])

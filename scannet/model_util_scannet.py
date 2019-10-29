@@ -59,7 +59,7 @@ class ScannetDatasetConfig(object):
         return self.mean_size_arr[pred_cls, :] + residual
 
     def param2obb(self, center, heading_class, heading_residual, size_class, size_residual):
-        print('Heading class {}'.format(heading_class))
+        #print('Heading class {}'.format(heading_class))
         heading_angle = self.class2angle(heading_class, heading_residual)
         box_size = self.class2size(int(size_class), size_residual)
         print('Size class {}'.format(size_class))

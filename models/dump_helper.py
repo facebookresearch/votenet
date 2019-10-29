@@ -96,7 +96,12 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
                 confident_nms_indices = np.logical_and(objectness_prob>DUMP_CONF_THRESH, pred_mask[i,:]==1)
                 print('Confident indices {}'.format(confident_nms_indices))
                 print('Exceeds confident nms threshold: {}'.format(obbs[confident_nms_indices,:].shape))
-                print('Confident class labels {}'.format(pred_size_class[i, confident_nms_indices]))
+                confinds = []
+                for i in len(confident_nms_indices):
+                    if confident_nms_indices[i]:
+                        confinds.append(i)
+                print('Confinds {}'.format(confinds))
+                #print('Confident class labels {}'.format(pred_size_class[i, confident_nms_indices]))
 
     # Return if it is at inference time. No dumping of groundtruths
     if inference_switch:

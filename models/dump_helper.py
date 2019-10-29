@@ -101,8 +101,9 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
                     if confident_nms_indices[i]:
                         confinds.append(i)
                 print('Confinds {}'.format(confinds))
-                for ind in confinds:
-                    print('Confident class {}'.format(pred_size_class[i,ind]))
+                print('Pred size class shape {}'.format(pred_size_class.shape))
+                #for ind in confinds:
+                    #print('Confident class {}'.format(pred_size_class[i,ind]))
                 #print('Confident class labels {}'.format(pred_size_class[i, confident_nms_indices]))
 
     # Return if it is at inference time. No dumping of groundtruths

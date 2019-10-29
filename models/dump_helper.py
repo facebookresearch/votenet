@@ -12,7 +12,7 @@ ROOT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(os.path.join(ROOT_DIR, 'utils'))
 import pc_util
 
-DUMP_CONF_THRESH = 0.5 # Dump boxes with obj prob larger than that.
+DUMP_CONF_THRESH = 0.75 # Dump boxes with obj prob larger than that.
 
 def softmax(x):
     ''' Numpy function for softmax'''
@@ -54,7 +54,7 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
     pred_size_class = torch.argmax(end_points['size_scores'], -1) # B,num_proposal
     pred_size_residual = torch.gather(end_points['size_residuals'], 2, pred_size_class.unsqueeze(-1).unsqueeze(-1).repeat(1,1,1,3)) # B,num_proposal,1,3
     pred_size_residual = pred_size_residual.squeeze(2).detach().cpu().numpy() # B,num_proposal,3
-    print('Objectness scores {}'.format(objectness_scores))
+    #print('Objectness scores {}'.format(objectness_scores))
 
 
     # OTHERS
@@ -104,7 +104,6 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
     gt_size_residual = end_points['size_residual_label'].cpu().numpy() # B,K2,3
     objectness_label = end_points['objectness_label'].detach().cpu().numpy() # (B,K,)
     objectness_mask = end_points['objectness_mask'].detach().cpu().numpy() # (B,K,)
-    print('Objectness label {}'.format(objectness_label))
 
     for i in range(batch_size):
         if np.sum(objectness_label[i,:])>0:

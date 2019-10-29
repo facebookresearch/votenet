@@ -10,6 +10,7 @@ Author: Charles R. Qi and Or Litany
 
 import os
 import sys
+from matplotlib import cm
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
 
@@ -23,6 +24,8 @@ except:
     sys.exit(-1)
 
 
+
+cmap = cm.get_cmap('tab20', 18)
 # Mesh IO
 import trimesh
 
@@ -422,6 +425,9 @@ def write_oriented_bbox(scene_bbox, out_filename):
         trns[3,3] = 1.0            
         trns[0:3,0:3] = heading2rotmat(box[6])
         box_trimesh_fmt = trimesh.creation.box(lengths, trns)
+        print('Lenghts {}'.format(lengths))
+        print('Trns {}'.format(trns))
+        
         return box_trimesh_fmt
 
     scene = trimesh.scene.Scene()

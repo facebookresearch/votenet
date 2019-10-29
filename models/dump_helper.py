@@ -103,7 +103,7 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
                 print('Confinds {}'.format(confinds))
                 print('Pred size class shape {}'.format(pred_size_class.shape))
                 for ind in confinds:
-                    class_index = int(pred_size_class[i,ind].numpy())
+                    class_index = int(pred_size_class[i,ind].detach().cpu().numpy())
                     class_type = config.class2type[class_index]
                     print('Confident class {}'.format(class_type))
                 #print('Confident class labels {}'.format(pred_size_class[i, confident_nms_indices]))

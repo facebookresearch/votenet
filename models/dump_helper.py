@@ -95,6 +95,8 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
                 pc_util.write_oriented_bbox(obbs, os.path.join(dump_dir, '%06d_pred_bbox.ply'%(idx_beg+i)))
                 confident_nms_indices = np.logical_and(objectness_prob>DUMP_CONF_THRESH, pred_mask[i,:]==1)
                 print('Confident indices {}'.format(confident_nms_indices))
+                print('Exceeds confident nms threshold: {}'.format(obbs[confident_nms_indices,:].shape))
+                print('Confident class labels {}'.format(pred_size_class[i, confident_nms_indices]))
 
     # Return if it is at inference time. No dumping of groundtruths
     if inference_switch:

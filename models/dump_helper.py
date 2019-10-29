@@ -33,6 +33,7 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
     '''
     if not os.path.exists(dump_dir):
         os.system('mkdir %s'%(dump_dir))
+    print('Dumping results')
 
     # INPUT
     point_clouds = end_points['point_clouds'].cpu().numpy()
@@ -53,6 +54,8 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
     pred_size_class = torch.argmax(end_points['size_scores'], -1) # B,num_proposal
     pred_size_residual = torch.gather(end_points['size_residuals'], 2, pred_size_class.unsqueeze(-1).unsqueeze(-1).repeat(1,1,1,3)) # B,num_proposal,1,3
     pred_size_residual = pred_size_residual.squeeze(2).detach().cpu().numpy() # B,num_proposal,3
+    print('Objectness scores {}'.format(objectness_scores))
+
 
     # OTHERS
     pred_mask = end_points['pred_mask'] # B,num_proposal

@@ -116,8 +116,8 @@ if __name__=='__main__':
     MODEL.dump_results(end_points, dump_dir, DC, True)
     print('End points keys {}'.format(end_points.keys()))
     print('Dumped detection results to folder %s'%(dump_dir))
-    print('Sem cls scores {}'.format(end_points['sem_cls_scores']))
-    print('Sem cls scores shape {}'.format(end_points['sem_cls_scores'].shape))
+    #print('Sem cls scores {}'.format(end_points['sem_cls_scores']))
+    #print('Sem cls scores shape {}'.format(end_points['sem_cls_scores'].shape))
     #raw_output_path = os.path.join(dump_dir, 'raw_outputs.json')
     #with open(raw_output_path, 'w+') as f:
     #    json.dump(end_points, f) fails to serialize because contains pytorch objects

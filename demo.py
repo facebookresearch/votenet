@@ -117,5 +117,5 @@ if __name__=='__main__':
     print('End points keys {}'.format(end_points.keys()))
     print('Dumped detection results to folder %s'%(dump_dir))
     raw_output_path = os.path.join(dump_dir, 'raw_outputs.json')
-    with open(raw_output_path, 'w+') as f:
-        json.dump(end_points, f)
+    #with open(raw_output_path, 'w+') as f:
+    #    json.dump(end_points, f) fails to serialize because contains pytorch objects

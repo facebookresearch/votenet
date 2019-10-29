@@ -101,6 +101,7 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
     gt_size_residual = end_points['size_residual_label'].cpu().numpy() # B,K2,3
     objectness_label = end_points['objectness_label'].detach().cpu().numpy() # (B,K,)
     objectness_mask = end_points['objectness_mask'].detach().cpu().numpy() # (B,K,)
+    print('Objectness label {}'.format(objectness_label))
 
     for i in range(batch_size):
         if np.sum(objectness_label[i,:])>0:

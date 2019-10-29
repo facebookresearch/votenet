@@ -80,10 +80,13 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
         if np.sum(objectness_prob>DUMP_CONF_THRESH)>0:
             num_proposal = pred_center.shape[1]
             obbs = [] # list of object bounding boxes
+            class_labels = []
             for j in range(num_proposal):
                 obb = config.param2obb(pred_center[i,j,0:3], pred_heading_class[i,j], pred_heading_residual[i,j],
                                 pred_size_class[i,j], pred_size_residual[i,j])
                 obbs.append(obb)
+            confident_nms_labels = pred_size_class[i,np.logical_and(objectness_prob>DUMP_CONF_THRESH, pred_mask[i,:]==1)]
+            print('Confident nms labels {}'.format(confident_nms_labels))
             if len(obbs)>0:
                 obbs = np.vstack(tuple(obbs)) # (num_proposal, 7)
                 print('Exceeds dump threshold shape: {}'.format(obbs[objectness_prob>DUMP_CONF_THRESH,:].shape))

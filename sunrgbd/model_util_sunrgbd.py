@@ -75,6 +75,7 @@ class SunrgbdDatasetConfig(object):
         return angle
 
     def param2obb(self, center, heading_class, heading_residual, size_class, size_residual):
+        print('Heading class {}'.format(heading_class))
         heading_angle = self.class2angle(heading_class, heading_residual)
         box_size = self.class2size(int(size_class), size_residual)
         obb = np.zeros((7,))

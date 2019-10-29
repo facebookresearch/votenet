@@ -97,13 +97,13 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
                 print('Confident indices {}'.format(confident_nms_indices))
                 print('Exceeds confident nms threshold: {}'.format(obbs[confident_nms_indices,:].shape))
                 confinds = []
-                for i in range(len(confident_nms_indices)):
-                    if confident_nms_indices[i]:
-                        confinds.append(i)
+                for k in range(len(confident_nms_indices)):
+                    if confident_nms_indices[k]:
+                        confinds.append(k)
                 print('Confinds {}'.format(confinds))
                 print('Pred size class shape {}'.format(pred_size_class.shape))
-                #for ind in confinds:
-                    #print('Confident class {}'.format(pred_size_class[i,ind]))
+                for ind in confinds:
+                    print('Confident class {}'.format(pred_size_class[i,ind]))
                 #print('Confident class labels {}'.format(pred_size_class[i, confident_nms_indices]))
 
     # Return if it is at inference time. No dumping of groundtruths

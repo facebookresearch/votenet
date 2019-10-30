@@ -111,8 +111,8 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
                     print('Confident class {}'.format(class_type))
                     obj = {}
                     obj['class'] = class_type
-                    obj['box_center'] = obbs[ind,0:3]
-                    obj['box_size'] = obbs[ind,3:6]
+                    obj['box_center'] = list(obbs[ind,0:3])
+                    obj['box_size'] = list(obbs[ind,3:6])
                     raw_data['objects'].append(obj)
                 save_file = os.path.join(dump_dir, 'bounding_boxes.json')
                 with open(save_file, 'w+') as f:

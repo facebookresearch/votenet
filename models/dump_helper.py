@@ -109,11 +109,13 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
                     class_index = int(pred_size_class[i,ind].detach().cpu().numpy())
                     class_type = config.class2type[class_index]
                     print('Confident class {}'.format(class_type))
+                    bbox = obbs[ind,:]
                     obj = {}
                     obj['class'] = class_type
                     obj['box_center'] = list(obbs[ind,0:3])
                     obj['box_size'] = list(obbs[ind,3:6])
                     raw_data['objects'].append(obj)
+                    pc_util.write_oriented_bbox([bbox], os.path.join(dump_dir, 'object_{}_{}.ply'.format(ind,class_type))
                 save_file = os.path.join(dump_dir, 'bounding_boxes.json')
                 with open(save_file, 'w+') as f:
                     json.dump(raw_data, f)

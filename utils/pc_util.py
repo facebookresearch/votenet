@@ -425,8 +425,8 @@ def write_oriented_bbox(scene_bbox, out_filename):
         trns[3,3] = 1.0            
         trns[0:3,0:3] = heading2rotmat(box[6])
         box_trimesh_fmt = trimesh.creation.box(lengths, trns)
-        print('Lenghts {}'.format(lengths))
-        print('Trns {}'.format(trns))
+        #print('Lenghts {}'.format(lengths))
+        #print('Trns {}'.format(trns))
         
         return box_trimesh_fmt
 

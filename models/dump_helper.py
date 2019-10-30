@@ -12,7 +12,7 @@ ROOT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(os.path.join(ROOT_DIR, 'utils'))
 import pc_util
 
-DUMP_CONF_THRESH = 0.5 # Dump boxes with obj prob larger than that.
+DUMP_CONF_THRESH = 0.6 # Dump boxes with obj prob larger than that.
 
 def softmax(x):
     ''' Numpy function for softmax'''

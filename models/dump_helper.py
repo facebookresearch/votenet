@@ -7,6 +7,7 @@ import numpy as np
 import torch
 import os
 import sys
+import json
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(os.path.join(ROOT_DIR, 'utils'))
@@ -102,10 +103,21 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
                         confinds.append(k)
                 print('Confinds {}'.format(confinds))
                 print('Pred size class shape {}'.format(pred_size_class.shape))
+                raw_data = {}
+                raw_data['objects'] = []
                 for ind in confinds:
                     class_index = int(pred_size_class[i,ind].detach().cpu().numpy())
                     class_type = config.class2type[class_index]
                     print('Confident class {}'.format(class_type))
+                    obj = {}
+                    obj['class'] = class_type
+                    obj['box_center'] = obbs[ind,0:3]
+                    obj['box_size'] = obbs[ind,3:6]
+                    raw_data['objects'].append(obj)
+                save_file = os.path.join(dump_dir, 'bounding_boxes.json')
+                with open(save_file, 'w+') as f:
+                    json.dump(raw_data, f)
+
                 #print('Confident class labels {}'.format(pred_size_class[i, confident_nms_indices]))
 
     # Return if it is at inference time. No dumping of groundtruths

@@ -16,7 +16,7 @@ import json
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default='sunrgbd', help='Dataset: sunrgbd or scannet [default: sunrgbd]')
-parser.add_argument('--num_point', type=int, default=20000, help='Point Number [default: 20000]')
+parser.add_argument('--num_point', type=int, default=None, help='Point Number [default: 20000]')
 parser.add_argument('--input_pc_path', type=str, help='Point cloud to run prediction on')
 parser.add_argument('--output_dir', type=str, help='Directory to dump outputs to')
 FLAGS = parser.parse_args()
@@ -39,7 +39,8 @@ def preprocess_point_cloud(point_cloud):
     height = point_cloud[:,2] - floor_height
     point_cloud = np.concatenate([point_cloud, np.expand_dims(height, 1)],1) # (N,4) or (N,7)
     # Turning off random sampling for the sake of reproducibility
-    #point_cloud = random_sampling(point_cloud, FLAGS.num_point)
+    if FLAGS.num_point is not None: 
+        point_cloud = random_sampling(point_cloud, FLAGS.num_point)
     pc = np.expand_dims(point_cloud.astype(np.float32), 0) # (1,40000,4)
     return pc
 
@@ -115,11 +116,4 @@ if __name__=='__main__':
             dump_dir = os.path.join(demo_dir, '%s_results'%(FLAGS.dataset))
     if not os.path.exists(dump_dir): os.mkdir(dump_dir) 
     MODEL.dump_results(end_points, dump_dir, DC, True)
-    print('End points keys {}'.format(end_points.keys()))
     print('Dumped detection results to folder %s'%(dump_dir))
-   # print('Pred_map_cls {}'.format(pred_map_cls))
-    #print('Sem cls scores {}'.format(end_points['sem_cls_scores']))
-    #print('Sem cls scores shape {}'.format(end_points['sem_cls_scores'].shape))
-    #raw_output_path = os.path.join(dump_dir, 'raw_outputs.json')
-    #with open(raw_output_path, 'w+') as f:
-    #    json.dump(end_points, f) fails to serialize because contains pytorch objects

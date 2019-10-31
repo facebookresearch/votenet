@@ -70,8 +70,6 @@ def parse_predictions(end_points, config_dict):
     pred_sem_cls = torch.argmax(end_points['sem_cls_scores'], -1) # B,num_proposal
     sem_cls_probs = softmax(end_points['sem_cls_scores'].detach().cpu().numpy()) # B,num_proposal,10
     pred_sem_cls_prob = np.max(sem_cls_probs,-1) # B,num_proposal
-    print('Predicted sem_cls {}'.format(pred_sem_cls))
-    print('Predicted sem_cls shape {}'.format(pred_sem_cls.shape))
 
     num_proposal = pred_center.shape[1] 
     # Since we operate in upright_depth coord for points, while util functions

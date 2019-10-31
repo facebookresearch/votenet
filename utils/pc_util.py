@@ -425,8 +425,6 @@ def write_oriented_bbox(scene_bbox, out_filename):
         trns[3,3] = 1.0            
         trns[0:3,0:3] = heading2rotmat(box[6])
         box_trimesh_fmt = trimesh.creation.box(lengths, trns)
-        #print('Lenghts {}'.format(lengths))
-        #print('Trns {}'.format(trns))
         
         return box_trimesh_fmt
 
@@ -517,9 +515,7 @@ if __name__ == '__main__':
     ############
     pcl = np.random.rand(32, 2, 3)
     write_lines_as_cylinders(pcl, 'point_connectors')
-    #input()
-    
-   
+       
     scene_bbox = np.zeros((1,7))
     scene_bbox[0,3:6] = np.array([1,2,3]) # dx,dy,dz
     scene_bbox[0,6] = np.pi/4 # 45 degrees 

@@ -89,26 +89,21 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
 
             if len(obbs)>0:
                 obbs = np.vstack(tuple(obbs)) # (num_proposal, 7)
-                print('Exceeds dump threshold shape: {}'.format(obbs[objectness_prob>DUMP_CONF_THRESH,:].shape))
                 pc_util.write_oriented_bbox(obbs[objectness_prob>DUMP_CONF_THRESH,:], os.path.join(dump_dir, '%06d_pred_confident_bbox.ply'%(idx_beg+i)))
                 pc_util.write_oriented_bbox(obbs[np.logical_and(objectness_prob>DUMP_CONF_THRESH, pred_mask[i,:]==1),:], os.path.join(dump_dir, '%06d_pred_confident_nms_bbox.ply'%(idx_beg+i)))
                 pc_util.write_oriented_bbox(obbs[pred_mask[i,:]==1,:], os.path.join(dump_dir, '%06d_pred_nms_bbox.ply'%(idx_beg+i)))
                 pc_util.write_oriented_bbox(obbs, os.path.join(dump_dir, '%06d_pred_bbox.ply'%(idx_beg+i)))
                 confident_nms_indices = np.logical_and(objectness_prob>DUMP_CONF_THRESH, pred_mask[i,:]==1)
-                print('Confident indices {}'.format(confident_nms_indices))
-                print('Exceeds confident nms threshold: {}'.format(obbs[confident_nms_indices,:].shape))
                 confinds = []
                 for k in range(len(confident_nms_indices)):
                     if confident_nms_indices[k]:
                         confinds.append(k)
-                print('Confinds {}'.format(confinds))
-                print('Pred size class shape {}'.format(pred_size_class.shape))
                 raw_data = {}
                 raw_data['objects'] = []
                 for ind in confinds:
                     class_index = int(pred_size_class[i,ind].detach().cpu().numpy())
                     class_type = config.class2type[class_index]
-                    print('Confident class {}'.format(class_type))
+                    print('Detected class {}'.format(class_type))
                     bbox = obbs[ind,:]
                     obj = {}
                     obj['class'] = class_type
@@ -120,7 +115,6 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
                 with open(save_file, 'w+') as f:
                     json.dump(raw_data, f)
 
-                #print('Confident class labels {}'.format(pred_size_class[i, confident_nms_indices]))
 
     # Return if it is at inference time. No dumping of groundtruths
     if inference_switch:

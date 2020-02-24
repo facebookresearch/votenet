@@ -38,6 +38,7 @@ Install the following Python dependencies (with `pip install`):
     opencv-python
     plyfile
     'trimesh>=2.35.39,<2.35.40'
+    'networkx>=2.2,<2.3'
 
 ## Run demo
 

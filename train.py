@@ -134,6 +134,18 @@ elif FLAGS.dataset == 'scannet':
     TEST_DATASET = ScannetDetectionDataset('val', num_points=NUM_POINT,
         augment=False,
         use_color=FLAGS.use_color, use_height=(not FLAGS.no_height))
+elif FLAGS.dataset == 'waymo':
+    sys.path.append(os.path.join(ROOT_DIR, 'waymo'))
+    from waymo_detection_dataset import WaymoDetectionDataset, MAX_NUM_OBJ
+    from model_util_waymo import WaymoDatasetConfig
+    DATASET_CONFIG = WaymoDatasetConfig()
+    TRAIN_DATASET = WaymoDetectionDataset('train', num_points=NUM_POINT,
+                                            augment=True,
+                                            use_color=FLAGS.use_color, use_height=(not FLAGS.no_height))
+    TEST_DATASET = WaymoDetectionDataset('val', num_points=NUM_POINT,
+                                           augment=False,
+                                           use_color=FLAGS.use_color, use_height=(not FLAGS.no_height))
+
 else:
     print('Unknown dataset %s. Exiting...'%(FLAGS.dataset))
     exit(-1)

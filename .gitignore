@@ -1,2 +1,5 @@
 .idea/*
 */.idea/*
+virtualenv_run/*
+*/virtuanenv_run/*
+

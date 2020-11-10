@@ -5,7 +5,6 @@
 
 """ Demo of using VoteNet 3D object detector to detect objects from a point cloud.
 """
-# test code
 import os
 import sys
 import numpy as np

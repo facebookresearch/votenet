@@ -4,13 +4,10 @@ import os
 import sys
 
 import pc_util
-# from model_util_waymo import WaymoDatasetConfig
-# DC = WaymoDatasetConfig()
-# TODO this is almost def wrong
-# from model_util_scannet import ScannetDatasetConfig
-# DC = ScannetDatasetConfig()
-MAX_NUM_OBJ = 64 # TODO probably too low
-MEAN_COLOR_RGB = np.array([109.8, 97.2, 83.8]) # TODO probably wrong
+from model_util_waymo import WaymoDatasetConfig
+DC = WaymoDatasetConfig()
+MAX_NUM_OBJ = 256
+MEAN_COLOR_RGB = np.array([109.8, 97.2, 83.8]) # TODO probably wrong ... tbh it does not matter ... tbh it does not matter
 
 
 class WaymoDetectionDataset(Dataset):
@@ -99,22 +96,24 @@ class WaymoDetectionDataset(Dataset):
         # from the points sharing the same instance label.
         point_votes = np.zeros([self.num_points, 3])
         point_votes_mask = np.zeros(self.num_points)
-        for i_instance in np.unique(instance_labels):
+        class_ind = np.zeros(instance_bboxes.shape[0]).astype(np.int32)
+        for bbox_idx, i_instance in enumerate(np.unique(instance_labels)):
             # find all points belong to that instance
             ind = np.where(instance_labels == i_instance)[0]
             # find the semantic label
-            if semantic_labels[ind[0]] in DC.nyu40ids:
+            if semantic_labels[ind[0]] in DC.waymoDataIds:
+                class_ind[bbox_idx] = int(semantic_labels[ind[0]])
                 x = point_cloud[ind, :3]
                 center = 0.5 * (x.min(0) + x.max(0))
                 point_votes[ind, :] = center - x
                 point_votes_mask[ind] = 1.0
         point_votes = np.tile(point_votes, (1, 3))  # make 3 votes identical
+        
 
-        class_ind = [np.where(DC.nyu40ids == x)[0][0] for x in instance_bboxes[:, -1]]
         # NOTE: set size class as semantic class. Consider use size2class.
         size_classes[0:instance_bboxes.shape[0]] = class_ind
         size_residuals[0:instance_bboxes.shape[0], :] = \
-            target_bboxes[0:instance_bboxes.shape[0], 3:6] - DC.mean_size_arr[class_ind, :]
+            target_bboxes[0:instance_bboxes.shape[0], 3:6]  - DC.mean_size_arr[class_ind, :] # TODO again need to fix .. mean len , wid, h
 
         ret_dict = {}
         ret_dict['point_clouds'] = point_cloud.astype(np.float32)
@@ -125,7 +124,7 @@ class WaymoDetectionDataset(Dataset):
         ret_dict['size_residual_label'] = size_residuals.astype(np.float32)
         target_bboxes_semcls = np.zeros((MAX_NUM_OBJ))
         target_bboxes_semcls[0:instance_bboxes.shape[0]] = \
-            [DC.nyu40id2class[x] for x in instance_bboxes[:, -1][0:instance_bboxes.shape[0]]]
+            [ x for x in instance_bboxes[:, -1][0:instance_bboxes.shape[0]]]
         ret_dict['sem_cls_label'] = target_bboxes_semcls.astype(np.int64)
         ret_dict['box_label_mask'] = target_bboxes_mask.astype(np.float32)
         ret_dict['vote_label'] = point_votes.astype(np.float32)

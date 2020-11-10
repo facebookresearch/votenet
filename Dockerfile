@@ -19,4 +19,4 @@ RUN pip install plyfile
 RUN pip install trimesh==2.35.39
 RUN pip install networkx==2.2
 RUN cd pointnet2 && python setup.py install
-RUN CUDA_VISIBLE_DEVICES=0 python models/votenet.py
+# RUN CUDA_VISIBLE_DEVICES=0 python models/votenet.py

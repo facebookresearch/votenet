@@ -1,28 +1,36 @@
-from torch.utils.data import Dataset
-import numpy as np
 import os
 import sys
+import numpy as np
+from torch.utils.data import Dataset
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(BASE_DIR)
+sys.path.append(ROOT_DIR)
+sys.path.append(os.path.join(ROOT_DIR, 'utils'))
 import pc_util
+from model_util_waymo import rotate_aligned_boxes
+
 from model_util_waymo import WaymoDatasetConfig
+
 DC = WaymoDatasetConfig()
 MAX_NUM_OBJ = 256
-MEAN_COLOR_RGB = np.array([109.8, 97.2, 83.8]) # TODO probably wrong ... tbh it does not matter ... tbh it does not matter
+MEAN_COLOR_RGB = np.array(
+    [109.8, 97.2, 83.8])  # TODO probably wrong ... tbh it does not matter ... tbh it does not matter
 
-
+# docker run  --gpus all -it --ipc=host -v /home/ubuntu/data:/data waymo_votenet /bin/bash
 class WaymoDetectionDataset(Dataset):
 
     def __init__(self, split_set='train', num_points=40000,
-                 use_color=False, use_height=False, augment=False, data_path = None):
+                 use_color=False, use_height=False, augment=False, data_path=None):
 
         # TODO if you have loading errors probably look here first!
         if not data_path:
-            self.data_path = os.path.join('/work/data', 'waymo_train_dataset')
+            self.data_path = '/data'  # os.path.join('/work/data', 'waymo_train_dataset')
         else:
             self.data_path = data_path
 
         # TODO implement logic for split sets other than train
-        self.scan_names = list(set([file.split('_')[0] for file in  os.listdir(self.data_path) if 'npy' in file]))
+        self.scan_names = list(set([file.split('_')[0] for file in os.listdir(self.data_path) if 'npy' in file]))
 
         self.num_points = num_points
         self.use_color = use_color
@@ -33,7 +41,6 @@ class WaymoDetectionDataset(Dataset):
         return len(self.scan_names)
 
     def __getitem__(self, idx):
-        print(self.scan_names)
         scan_name = self.scan_names[idx]
         mesh_vertices = np.load(os.path.join(self.data_path, scan_name) + '_vert.npy')
         instance_labels = np.load(os.path.join(self.data_path, scan_name) + '_ins_label.npy')
@@ -108,12 +115,12 @@ class WaymoDetectionDataset(Dataset):
                 point_votes[ind, :] = center - x
                 point_votes_mask[ind] = 1.0
         point_votes = np.tile(point_votes, (1, 3))  # make 3 votes identical
-        
 
         # NOTE: set size class as semantic class. Consider use size2class.
-        size_classes[0:instance_bboxes.shape[0]] = class_ind
+        size_classes[0:instance_bboxes.shape[0]] = class_ind - 1
         size_residuals[0:instance_bboxes.shape[0], :] = \
-            target_bboxes[0:instance_bboxes.shape[0], 3:6]  - DC.mean_size_arr[class_ind, :] # TODO again need to fix .. mean len , wid, h
+            target_bboxes[0:instance_bboxes.shape[0], 3:6] - DC.mean_size_arr[class_ind - 1,
+                                                             :]  # TODO again need to fix .. mean len , wid, h
 
         ret_dict = {}
         ret_dict['point_clouds'] = point_cloud.astype(np.float32)
@@ -124,7 +131,7 @@ class WaymoDetectionDataset(Dataset):
         ret_dict['size_residual_label'] = size_residuals.astype(np.float32)
         target_bboxes_semcls = np.zeros((MAX_NUM_OBJ))
         target_bboxes_semcls[0:instance_bboxes.shape[0]] = \
-            [ x for x in instance_bboxes[:, -1][0:instance_bboxes.shape[0]]]
+            [x for x in instance_bboxes[:, -1][0:instance_bboxes.shape[0]]]
         ret_dict['sem_cls_label'] = target_bboxes_semcls.astype(np.int64)
         ret_dict['box_label_mask'] = target_bboxes_mask.astype(np.float32)
         ret_dict['vote_label'] = point_votes.astype(np.float32)
@@ -132,6 +139,7 @@ class WaymoDetectionDataset(Dataset):
         ret_dict['scan_idx'] = np.array(idx).astype(np.int64)
         ret_dict['pcl_color'] = pcl_color
         return ret_dict
+
 
 if __name__ == '__main__':
     dset = WaymoDetectionDataset(data_path=sys.argv[1])

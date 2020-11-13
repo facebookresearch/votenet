@@ -13,7 +13,7 @@ Date: December, 2018
 Note: removed basis loading.
 '''
 import numpy as np
-import cv2
+# import cv2
 import os
 import scipy.io as sio # to load .mat files for depth points
 
@@ -185,8 +185,8 @@ def read_sunrgbd_label(label_filename):
     objects = [SUNObject3d(line) for line in lines]
     return objects
 
-def load_image(img_filename):
-    return cv2.imread(img_filename)
+# def load_image(img_filename):
+#     return cv2.imread(img_filename)
 
 def load_depth_points(depth_filename):
     depth = np.loadtxt(depth_filename)
@@ -289,29 +289,29 @@ def compute_orientation_3d(obj, calib):
     orientation_2d,_ = calib.project_upright_depth_to_image(np.transpose(orientation_3d))
     return orientation_2d, np.transpose(orientation_3d)
 
-def draw_projected_box3d(image, qs, color=(255,255,255), thickness=2):
-    ''' Draw 3d bounding box in image
-        qs: (8,2) array of vertices for the 3d box in following order:
-            1 -------- 0
-           /|         /|
-          2 -------- 3 .
-          | |        | |
-          . 5 -------- 4
-          |/         |/
-          6 -------- 7
-    '''
-    qs = qs.astype(np.int32)
-    for k in range(0,4):
-       #http://docs.enthought.com/mayavi/mayavi/auto/mlab_helper_functions.html
-       i,j=k,(k+1)%4
-       cv2.line(image, (qs[i,0],qs[i,1]), (qs[j,0],qs[j,1]), color, thickness, cv2.CV_AA) # use LINE_AA for opencv3
+#def draw_projected_box3d(image, qs, color=(255,255,255), thickness=2):
+#    ''' Draw 3d bounding box in image
+#        qs: (8,2) array of vertices for the 3d box in following order:
+#            1 -------- 0
+#           /|         /|
+#          2 -------- 3 .
+#          | |        | |
+#          . 5 -------- 4
+#          |/         |/
+#          6 -------- 7
+#    '''
+#    qs = qs.astype(np.int32)
+#    for k in range(0,4):
+#       #http://docs.enthought.com/mayavi/mayavi/auto/mlab_helper_functions.html
+#       i,j=k,(k+1)%4
+#       cv2.line(image, (qs[i,0],qs[i,1]), (qs[j,0],qs[j,1]), color, thickness, cv2.CV_AA) # use LINE_AA for opencv3
 
-       i,j=k+4,(k+1)%4 + 4
-       cv2.line(image, (qs[i,0],qs[i,1]), (qs[j,0],qs[j,1]), color, thickness, cv2.CV_AA)
+#       i,j=k+4,(k+1)%4 + 4
+#       cv2.line(image, (qs[i,0],qs[i,1]), (qs[j,0],qs[j,1]), color, thickness, cv2.CV_AA)
 
-       i,j=k,k+4
-       cv2.line(image, (qs[i,0],qs[i,1]), (qs[j,0],qs[j,1]), color, thickness, cv2.CV_AA)
-    return image
+#       i,j=k,k+4
+#       cv2.line(image, (qs[i,0],qs[i,1]), (qs[j,0],qs[j,1]), color, thickness, cv2.CV_AA)
+#    return image
 
 
 import pickle

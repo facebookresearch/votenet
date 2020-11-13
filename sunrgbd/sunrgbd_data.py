@@ -14,7 +14,6 @@ Load depth with scipy.io
 '''
 
 import os
-import sys
 import numpy as np
 import sys
 import cv2
@@ -24,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
 sys.path.append(os.path.join(BASE_DIR, '../utils/'))
 import pc_util
-import sunrgbd_utils
+from waymo import sunrgbd_utils
 
 DEFAULT_TYPE_WHITELIST = ['bed','table','sofa','chair','toilet','desk','dresser','night_stand','bookshelf','bathtub']
 
@@ -239,7 +238,7 @@ def extract_sunrgbd_data(idx_filename, split, output_folder, num_point=20000,
                 try:
                     # Find all points in this object's OBB
                     box3d_pts_3d = sunrgbd_utils.my_compute_box_3d(obj.centroid,
-                        np.array([obj.l,obj.w,obj.h]), obj.heading_angle)
+                                                                   np.array([obj.l,obj.w,obj.h]), obj.heading_angle)
                     pc_in_box3d,inds = sunrgbd_utils.extract_pc_in_box3d(\
                         pc_upright_depth_subsampled, box3d_pts_3d)
                     # Assign first dimension to indicate it is in an object box

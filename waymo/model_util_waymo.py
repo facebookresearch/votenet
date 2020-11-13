@@ -4,57 +4,31 @@ import numpy as np
 class WaymoDatasetConfig(object):
 
     def __init__(self):
-        # TODO not clear if this is off by 1 we have 3 classes + no class
-        self.num_class = 3
-        self.num_heading_bin = 1
-        self.num_size_cluster = 3
+        self.num_class = 4
+        self.num_heading_bin = 12 # Matching num_heading_bin in SUNRGDB dataset config
+        self.num_size_cluster = self.num_class # don't do additional clustering within a given class
 
         self.type2class = {
-            'SIGN': 3,
-            'CAR': 1,
-            'PERSON': 2
+            'TYPE_SIGN': 3,
+            'TYPE_VEHICLE': 1,
+            'TYPE_PEDESTRIAN': 2,
+            'TYPE_CYCLIST': 4
         }
 
-        self.class2type = {self.type2class[t] for t in self.type2class}
-        self.waymoDataIds = np.array([0, 1, 2, 3])
-        # TODO
-        # self.mean_size_arr = {
-        #     1: np.array([1.94191027, 4.41998532, 1.97638222]),
-        #     2: np.array([0.8433135,  0.90025193, 1.71406664]),
-        #     3: np.array([0.63715241, 0.45786768, 0.76657946]),
-        # }
+        self.class2type = {self.type2class[t]: t for t in self.type2class}
+        self.type2onehotclass= self.type2class # TODO this is in the original code ... not clear if it's a bug
 
-        self.mean_size_arr = np.array(
-            [
-                [1.94191027, 4.41998532, 1.97638222],
-                [0.8433135, 0.90025193, 1.71406664],
-                [0.63715241, 0.45786768, 0.76657946],
-            ]
-        )
 
-        self.type_mean_size = {}
-        # TODO
-        # for i in range(self.num_size_cluster):
-        #     self.type_mean_size[self.class2type[i]] = self.mean_size_arr[i,:]
+        self.type_mean_size = {
+                'TYPE_VEHICLE': np.array([1.94191027, 4.41998532, 1.97638222]), # CAR
+                'TYPE_PEDESTRIAN': np.array([0.8433135, 0.90025193, 1.71406664]), # PED
+                'TYPE_SIGN': np.array([0.63715241, 0.45786768, 0.76657946]), # SIGN
+                'TYPE_CYCLIST': np.array([0.9088676,  1.94448067, 1.78]), # CYCLIST
+            }
 
-    def angle2class(self, angle):
-        ''' Convert continuous angle to discrete class
-            [optinal] also small regression number from
-            class center angle to current angle.
-
-            angle is from 0-2pi (or -pi~pi), class center at 0, 1*(2pi/N), 2*(2pi/N) ...  (N-1)*(2pi/N)
-            return is class of int32 of 0,1,...,N-1 and a number such that
-                class*(2pi/N) + number = angle
-
-            NOT USED.
-        '''
-        assert (False)
-
-    def class2angle(self, pred_cls, residual, to_label_format=True):
-        ''' Inverse function to angle2class.
-
-        As ScanNet only has axis-alined boxes so angles are always 0. '''
-        return 0
+        self.mean_size_arr = np.zeros((self.num_size_cluster, 3))
+        for i in range(self.num_size_cluster):
+            self.mean_size_arr[i, :] = self.type_mean_size[self.class2type[i+1]] # TODO code smell +i
 
     def size2class(self, size, type_name):
         ''' Convert 3D box size (l,w,h) to size class and size residual '''
@@ -64,7 +38,36 @@ class WaymoDatasetConfig(object):
 
     def class2size(self, pred_cls, residual):
         ''' Inverse function to size2class '''
-        return self.mean_size_arr[pred_cls, :] + residual
+        mean_size = self.type_mean_size[self.class2type[pred_cls]]
+        return mean_size + residual
+
+    def angle2class(self, angle):
+        ''' Convert continuous angle to discrete class
+            [optinal] also small regression number from
+            class center angle to current angle.
+
+            angle is from 0-2pi (or -pi~pi), class center at 0, 1*(2pi/N), 2*(2pi/N) ...  (N-1)*(2pi/N)
+            return is class of int32 of 0,1,...,N-1 and a number such that
+                class*(2pi/N) + number = angle
+        '''
+        num_class = self.num_heading_bin
+        angle = angle % (2 * np.pi)
+        assert (angle >= 0 and angle <= 2 * np.pi)
+        angle_per_class = 2 * np.pi / float(num_class)
+        shifted_angle = (angle + angle_per_class / 2) % (2 * np.pi)
+        class_id = int(shifted_angle / angle_per_class)
+        residual_angle = shifted_angle - (class_id * angle_per_class + angle_per_class / 2)
+        return class_id, residual_angle
+
+    def class2angle(self, pred_cls, residual, to_label_format=True):
+        ''' Inverse function to angle2class '''
+        num_class = self.num_heading_bin
+        angle_per_class = 2 * np.pi / float(num_class)
+        angle_center = pred_cls * angle_per_class
+        angle = angle_center + residual
+        if to_label_format and angle > np.pi:
+            angle = angle - 2 * np.pi
+        return angle
 
     def param2obb(self, center, heading_class, heading_residual, size_class, size_residual):
         heading_angle = self.class2angle(heading_class, heading_residual)
@@ -74,26 +77,3 @@ class WaymoDatasetConfig(object):
         obb[3:6] = box_size
         obb[6] = heading_angle * -1
         return obb
-
-
-def rotate_aligned_boxes(input_boxes, rot_mat):
-    centers, lengths = input_boxes[:, 0:3], input_boxes[:, 3:6]
-    new_centers = np.dot(centers, np.transpose(rot_mat))
-
-    dx, dy = lengths[:, 0] / 2.0, lengths[:, 1] / 2.0
-    new_x = np.zeros((dx.shape[0], 4))
-    new_y = np.zeros((dx.shape[0], 4))
-
-    for i, crnr in enumerate([(-1, -1), (1, -1), (1, 1), (-1, 1)]):
-        crnrs = np.zeros((dx.shape[0], 3))
-        crnrs[:, 0] = crnr[0] * dx
-        crnrs[:, 1] = crnr[1] * dy
-        crnrs = np.dot(crnrs, np.transpose(rot_mat))
-        new_x[:, i] = crnrs[:, 0]
-        new_y[:, i] = crnrs[:, 1]
-
-    new_dx = 2.0 * np.max(new_x, 1)
-    new_dy = 2.0 * np.max(new_y, 1)
-    new_lengths = np.stack((new_dx, new_dy, lengths[:, 2]), axis=1)
-
-    return np.concatenate([new_centers, new_lengths], axis=1)

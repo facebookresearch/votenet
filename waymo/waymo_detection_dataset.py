@@ -158,8 +158,10 @@ class WaymoDetectionDataset(Dataset):
             target_bboxes[i,:] = target_bbox
 
         point_cloud, choices = pc_util.random_sampling(point_cloud, self.num_points, return_choices=True)
-        point_votes_mask = point_votes[choices,0]
-        point_votes = point_votes[choices,1:]
+        point_votes = point_votes[choices]
+        point_votes_mask = point_votes_mask[choices]
+        #point_votes_mask = point_votes[choices,0]
+        #point_votes = point_votes[choices,1:]
 
         ret_dict = {}
         ret_dict['point_clouds'] = point_cloud.astype(np.float32)
@@ -179,6 +181,6 @@ class WaymoDetectionDataset(Dataset):
 
 if __name__ == '__main__':
     dset = WaymoDetectionDataset(data_path=sys.argv[1])
-    for i in range(25):
+    for i in range(10):
         example = dset.__getitem__(i)
-        print(example)
+        print(example['vote_label'].shape)

@@ -44,7 +44,7 @@ class WaymoDetectionDataset(Dataset):
         scan_name = self.scan_names[idx]
         mesh_vertices = np.load(os.path.join(self.data_path, scan_name) + '_vert.npy')
         instance_labels = np.load(os.path.join(self.data_path, scan_name) + '_ins_label.npy')
-        semantic_labels = np.load(os.path.join(self.data_path, scan_name) + '_sem_label.npy').astype(np.int32)
+        semantic_labels = np.load(os.path.join(self.data_path, scan_name) + '_sem_label.npy').astype(np.int32) - 1
         bboxes = np.load(os.path.join(self.data_path, scan_name) + '_bbox.npy')
 
         if not self.use_color:
@@ -130,11 +130,11 @@ class WaymoDetectionDataset(Dataset):
 
         for i in range(bboxes.shape[0]):
             bbox = bboxes[i]
-            semantic_class = semantic_labels[i]
+            semantic_class = bbox[7]
             box3d_center = bbox[0:3]
             angle_class, angle_residual = DC.angle2class(bbox[6])
             box3d_size = bbox[3:6]
-            size_class, size_residual = DC.size2class(box3d_size, DC.class2type[semantic_class + 1])
+            size_class, size_residual = DC.size2class(box3d_size, DC.class2type[semantic_class])
             box3d_centers[i,:] = box3d_center
             angle_classes[i] = angle_class
             angle_residuals[i] = angle_residual
@@ -179,6 +179,6 @@ class WaymoDetectionDataset(Dataset):
 
 if __name__ == '__main__':
     dset = WaymoDetectionDataset(data_path=sys.argv[1])
-    for i in range(1):
+    for i in range(25):
         example = dset.__getitem__(i)
         print(example)

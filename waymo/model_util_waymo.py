@@ -9,10 +9,10 @@ class WaymoDatasetConfig(object):
         self.num_size_cluster = self.num_class # don't do additional clustering within a given class
 
         self.type2class = {
-            'TYPE_SIGN': 3,
-            'TYPE_VEHICLE': 1,
-            'TYPE_PEDESTRIAN': 2,
-            'TYPE_CYCLIST': 4
+            'TYPE_SIGN': 2,
+            'TYPE_VEHICLE': 0,
+            'TYPE_PEDESTRIAN': 1,
+            'TYPE_CYCLIST': 3
         }
 
         self.class2type = {self.type2class[t]: t for t in self.type2class}
@@ -28,7 +28,7 @@ class WaymoDatasetConfig(object):
 
         self.mean_size_arr = np.zeros((self.num_size_cluster, 3))
         for i in range(self.num_size_cluster):
-            self.mean_size_arr[i, :] = self.type_mean_size[self.class2type[i+1]] # TODO code smell +i
+            self.mean_size_arr[i, :] = self.type_mean_size[self.class2type[i]]
 
     def size2class(self, size, type_name):
         ''' Convert 3D box size (l,w,h) to size class and size residual '''

@@ -17,19 +17,17 @@ MAX_NUM_OBJ = 256
 MEAN_COLOR_RGB = np.array(
     [109.8, 97.2, 83.8])  # TODO probably wrong ... tbh it does not matter ... tbh it does not matter
 
-# docker run  --gpus all -it --ipc=host -v /home/ubuntu/data:/data waymo_votenet /bin/bash
+# docker run  --gpus all -it --ipc=host -v /home/ubuntu/data:/data -v /home/ubuntu/tf_logs:/work/tf_logs waymo_votenet /bin/bash
 class WaymoDetectionDataset(Dataset):
 
     def __init__(self, split_set='train', num_points=40000,
                  use_color=False, use_height=False, augment=False, data_path=None):
 
-        # TODO if you have loading errors probably look here first!
         if not data_path:
-            self.data_path = '/data'  # os.path.join('/work/data', 'waymo_train_dataset')
-        else:
-            self.data_path = data_path
+            raise ValueError('Please provide a data path')
+            # TODO implement logic for split sets other than train
+        self.scan_names = list(set([file.split('_')[0] for file in os.listdir(self.data_path) if 'npy' in file]))
 
-        # TODO implement logic for split sets other than train
         self.scan_names = list(set([file.split('_')[0] for file in os.listdir(self.data_path) if 'npy' in file]))
 
         self.num_points = num_points

@@ -9,8 +9,8 @@
 addpath('../OFFICIAL_SUNRGBD/SUNRGBDtoolbox')
 
 %% Construct Hash Map
-hash_train = java.util.Hashtable;
-hash_val = java.util.Hashtable;
+hash_train = javaObject("java.util.Hashtable");
+hash_val = javaObject("java.util.Hashtable");
 
 split = load('../OFFICIAL_SUNRGBD/SUNRGBDtoolbox/traintestSUNRGBD/allsplit.mat');
 

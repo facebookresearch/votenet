@@ -13,6 +13,9 @@
 % Author: Charles R. Qi
 %
 clear; close all; clc;
+function parsave(filename, instance)
+save(filename, 'instance');
+end
 addpath(genpath('.'))
 addpath('../OFFICIAL_SUNRGBD/SUNRGBDtoolbox/readData')
 %% V1 2D&3D BB and Seg masks
@@ -36,7 +39,6 @@ mkdir(seg_label_folder);
 %% Read
 parfor imageId = 1:10335
     imageId
-try
 data = SUNRGBDMeta(imageId);
 data.depthpath(1:16) = '';
 data.depthpath = strcat('../OFFICIAL_SUNRGBD', data.depthpath);
@@ -50,10 +52,12 @@ points3d(isnan(points3d(:,1)),:) = [];
 points3d_rgb = [points3d, rgb];
 
 % MAT files are 3x smaller than TXT files. In Python we can use
-% scipy.io.loadmat('xxx.mat')['points3d_rgb'] to load the data.
+% np.loadtxt('xxx.mat') to load the data.
 mat_filename = strcat(num2str(imageId,'%06d'), '.mat');
 txt_filename = strcat(num2str(imageId,'%06d'), '.txt');
-parsave(strcat(depth_folder, mat_filename), points3d_rgb);
+xx = strcat(depth_folder, mat_filename);
+parsave(xx, points3d_rgb);
+try
 
 % Write images
 copyfile(data.rgbpath, sprintf('%s/%06d.jpg', image_folder, imageId));
@@ -79,8 +83,4 @@ fclose(fid);
 catch
 end
 
-end
-
-function parsave(filename, instance)
-save(filename, 'instance');
 end

@@ -10,7 +10,6 @@ Date: December, 2018
 
 Note: removed unused code for frustum preparation.
 Changed a way for data visualization (removed depdency on mayavi).
-Load depth with scipy.io
 '''
 
 import os

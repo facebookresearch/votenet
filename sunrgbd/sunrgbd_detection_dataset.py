@@ -24,7 +24,6 @@ import os
 import sys
 import numpy as np
 from torch.utils.data import Dataset
-import scipy.io as sio # to load .mat files for depth points
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(BASE_DIR)

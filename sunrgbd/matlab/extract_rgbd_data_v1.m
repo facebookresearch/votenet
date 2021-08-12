@@ -32,7 +32,7 @@ data.rgbpath(1:16) = '';
 data.rgbpath = strcat('../OFFICIAL_SUNRGBD/SUNRGBD', data.rgbpath);
 
 % MAT files are 3x smaller than TXT files. In Python we can use
-% scipy.io.loadmat('xxx.mat')['points3d_rgb'] to load the data.
+% np.loadtxt('xxx.mat') to load the data.
 mat_filename = strcat(num2str(imageId,'%06d'), '.mat');
 txt_filename = strcat(num2str(imageId,'%06d'), '.txt');
 

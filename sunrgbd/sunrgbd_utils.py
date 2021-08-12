@@ -15,7 +15,6 @@ Note: removed basis loading.
 import numpy as np
 import cv2
 import os
-import scipy.io as sio # to load .mat files for depth points
 
 type2class={'bed':0, 'table':1, 'sofa':2, 'chair':3, 'toilet':4, 'desk':5, 'dresser':6, 'night_stand':7, 'bookshelf':8, 'bathtub':9}
 class2type = {type2class[t]:t for t in type2class}
@@ -193,7 +192,7 @@ def load_depth_points(depth_filename):
     return depth
 
 def load_depth_points_mat(depth_filename):
-    depth = sio.loadmat(depth_filename)['instance']
+    depth = np.loadtxt(depth_filename)
     return depth
 
 def random_shift_box2d(box2d, shift_ratio=0.1):

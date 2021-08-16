@@ -1,0 +1,33 @@
+name: pc-scenes
+channels:
+- pytorch
+- defaults
+- conda-forge
+dependencies:
+- black
+- cffi
+- cmake
+- cudatoolkit
+- cython
+- ipython
+- jupyter
+- jupyterlab
+- matplotlib
+- mkl
+- nb_conda
+- numpy
+- opencv
+- pandas
+- pillow
+- pip
+- pytorch
+- pytorch_geometric
+- pyyaml
+- scikit-image
+- scikit-learn
+- scipy
+- seaborn
+- setuptools
+- trimesh
+- torchvision
+- tqdm

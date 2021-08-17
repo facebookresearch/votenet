@@ -4,8 +4,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import trimesh
 
-from geometric_utils import BASE_NORMALS, get_plane_params
+from geometric_utils import BASE_NORMALS, Measures, get_plane_params
 from pathlib import Path
+from transforms import CabernetTransforms
+from trimesh_utils import load_mesh
 from typing import Dict, Optional, Tuple
 
 
@@ -38,101 +40,52 @@ class Render(object):
         return "any"
 
     def add_xy_plane(
-        self,
-        normal: np.ndarray,
-        bias: float,
-        x_min: float = -10.0,
-        x_max: float = 10.0,
-        x_num: int = 100,
-        y_min: float = -10.0,
-        y_max: float = 10.0,
-        y_num: int = 100,
-        z_min: float = -10.0,
-        z_max: float = 10.0,
-        z_num: int = 100,
-        surface_kwargs: Dict = dict(alpha=0.5),
+        self, normal: np.ndarray, bias: float, measures: Measures, surface_kwargs: Dict = dict(alpha=0.5),
     ):
         xx, yy = np.meshgrid(
-            np.linspace(start=x_min, stop=x_max, num=x_num), np.linspace(start=y_min, stop=y_max, num=y_num)
+            np.linspace(start=measures.min_x, stop=measures.max_x, num=100),
+            np.linspace(start=measures.min_y, stop=measures.max_y, num=100),
         )
         self.ax.plot_surface(xx, yy, -1.0 * bias * np.ones_like(xx), **surface_kwargs)
 
     def add_xz_plane(
-        self,
-        normal: np.ndarray,
-        bias: float,
-        x_min: float = -10.0,
-        x_max: float = 10.0,
-        x_num: int = 100,
-        y_min: float = -10.0,
-        y_max: float = 10.0,
-        y_num: int = 100,
-        z_min: float = -10.0,
-        z_max: float = 10.0,
-        z_num: int = 100,
-        surface_kwargs: Dict = dict(alpha=0.5),
+        self, normal: np.ndarray, bias: float, measures: Measures, surface_kwargs: Dict = dict(alpha=0.5),
     ):
         xx, zz = np.meshgrid(
-            np.linspace(start=x_min, stop=x_max, num=x_num), np.linspace(start=z_min, stop=z_max, num=z_num)
+            np.linspace(start=measures.min_x, stop=measures.max_x, num=100),
+            np.linspace(start=measures.min_z, stop=measures.max_z, num=100),
         )
         self.ax.plot_surface(xx, -1.0 * bias * np.ones_like(xx), zz, **surface_kwargs)
 
     def add_yz_plane(
-        self,
-        normal: np.ndarray,
-        bias: float,
-        x_min: float = -10.0,
-        x_max: float = 10.0,
-        x_num: int = 100,
-        y_min: float = -10.0,
-        y_max: float = 10.0,
-        y_num: int = 100,
-        z_min: float = -10.0,
-        z_max: float = 10.0,
-        z_num: int = 100,
-        surface_kwargs: Dict = dict(alpha=0.5),
+        self, normal: np.ndarray, bias: float, measures: Measures, surface_kwargs: Dict = dict(alpha=0.5),
     ):
         yy, zz = np.meshgrid(
-            np.linspace(start=y_min, stop=y_max, num=y_num), np.linspace(start=z_min, stop=z_max, num=z_num)
+            np.linspace(start=measures.min_y, stop=measures.max_y, num=100),
+            np.linspace(start=measures.min_z, stop=measures.max_z, num=100),
         )
         self.ax.plot_surface(-1.0 * bias * np.ones_like(yy), yy, zz, **surface_kwargs)
 
     def add_any_plane(
-        self,
-        normal: np.ndarray,
-        bias: float,
-        x_min: float = -10.0,
-        x_max: float = 10.0,
-        x_num: int = 100,
-        y_min: float = -10.0,
-        y_max: float = 10.0,
-        y_num: int = 100,
-        z_min: float = -10.0,
-        z_max: float = 10.0,
-        z_num: int = 100,
-        surface_kwargs: Dict = dict(alpha=0.5),
+        self, normal: np.ndarray, bias: float, measures: Measures, surface_kwargs: Dict = dict(alpha=0.5),
     ):
         a, b, c = normal
         xx, yy = np.meshgrid(
-            np.linspace(start=x_min, stop=x_max, num=x_num), np.linspace(start=y_min, stop=y_max, num=y_num)
+            np.linspace(start=measures.min_x, stop=measures.max_x, num=100),
+            np.linspace(start=measures.min_y, stop=measures.max_y, num=100),
         )
         z = -1.0 * (a * xx + b * yy + bias) / c
         self.ax.plot_surface(xx, yy, z, **surface_kwargs)
 
     def add_plane(
-        self,
-        points: np.ndarray,
-        x_min: float = -10.0,
-        x_max: float = 10.0,
-        x_num: int = 100,
-        y_min: float = -10.0,
-        y_max: float = 10.0,
-        y_num: int = 100,
-        z_min: float = -10.0,
-        z_max: float = 10.0,
-        z_num: int = 100,
-        surface_kwargs: Dict = dict(alpha=0.5),
+        self, points: np.ndarray, measures: Measures = None, surface_kwargs: Dict = dict(alpha=0.5),
     ):
+        if measures is None:
+            measures = Measures()
+            measures.min_x, measures.max_x = -10.0, 10.0
+            measures.min_y, measures.max_y = -10.0, 10.0
+            measures.min_z, measures.max_z = -10.0, 10.0
+
         normal, bias = get_plane_params(points)
         plane_attr = self._which_plane(normal)
         planes_fn = {
@@ -144,20 +97,7 @@ class Render(object):
             "yz-": self.add_yz_plane,
             "any": self.add_any_plane,
         }[plane_attr]
-        planes_fn(
-            normal=normal,
-            bias=bias,
-            x_min=x_min,
-            x_max=x_max,
-            x_num=x_num,
-            y_min=y_min,
-            y_max=y_max,
-            y_num=y_num,
-            z_min=z_min,
-            z_max=z_max,
-            z_num=z_num,
-            surface_kwargs=surface_kwargs,
-        )
+        planes_fn(normal=normal, bias=bias, measures=measures, surface_kwargs=surface_kwargs)
 
     def save(self, path: Path):
         plt.savefig(path)
@@ -177,31 +117,27 @@ if __name__ == "__main__":
     parser.add_argument("--path", type=Path, required=True)
     parser.add_argument("--bbox", action="store_true", default=False)
     parser.add_argument("--sample", type=int, default=None)
+    parser.add_argument("--rotate-xz", type=float, default=0.0)
+    parser.add_argument("--translate-x", type=float, default=0.0)
+    parser.add_argument("--translate-z", type=float, default=0.0)
     opts = parser.parse_args()
-
     opts.path = opts.path.expanduser()
-    mesh = trimesh.load_mesh(opts.path)
 
-    if opts.sample:
-        sampler = (
-            trimesh.sample.sample_surface if len(mesh.vertices) < opts.sample else trimesh.sample.sample_surface_even
-        )
-        points, _ = sampler(mesh, opts.sample)
-    else:
-        points = mesh.vertices
+    points, bbox = load_mesh(opts.path, sample=opts.sample)
+
+    transforms = CabernetTransforms(seed=None)
+    points, bbox = transforms.apply_rotation([points, bbox], alpha=opts.rotate_xz)
+    points, bbox = transforms.apply_translation(
+        [points, bbox], t_vec=np.asarray([opts.translate_x, 0, opts.translate_z], dtype=np.float64)
+    )
 
     render = Render()
     render.add_pcd(pcd=points)
     if opts.bbox:
-        bbox = mesh.bounding_box.vertices
         render.add_bbox(bbox=bbox)
 
     xz_plane = np.array([[0, 0, 0], [1, 0, 0], [0, 0, 1]])
-    render.add_plane(
-        points=xz_plane,
-        x_min=points[:, 0].min(), x_max=points[:, 0].max(),
-        y_min=points[:, 1].min(), y_max=points[:, 1].max(),
-        z_min=points[:, 2].min(), z_max=points[:, 2].max()
-    )
+    measures = Measures.from_pointcloud(points)
+    render.add_plane(points=xz_plane, measures=measures)
 
     render.render()

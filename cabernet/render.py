@@ -2,11 +2,9 @@ import argparse
 import matplotlib.colors as clr
 import matplotlib.pyplot as plt
 import numpy as np
-import trimesh
 
 from geometric_utils import BASE_NORMALS, Measures, get_plane_params
 from pathlib import Path
-from transforms import CabernetTransforms
 from trimesh_utils import load_mesh
 from typing import Dict, Optional, Tuple
 
@@ -112,6 +110,19 @@ class Render(object):
         plt.close()
 
 
+def render_points(points: np.ndarray, bbox: np.ndarray = None):
+    render = Render()
+    render.add_pcd(pcd=points)
+    if bbox is not None:
+        render.add_bbox(bbox=bbox)
+
+    xz_plane = np.array([[0, 0, 0], [1, 0, 0], [0, 0, 1]])
+    measures = Measures.from_pointcloud(points)
+    render.add_plane(points=xz_plane, measures=measures)
+
+    render.render()
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", type=Path, required=True)
@@ -125,19 +136,5 @@ if __name__ == "__main__":
 
     points, bbox = load_mesh(opts.path, sample=opts.sample)
 
-    transforms = CabernetTransforms(seed=None)
-    points, bbox = transforms.apply_rotation([points, bbox], alpha=opts.rotate_xz)
-    points, bbox = transforms.apply_translation(
-        [points, bbox], t_vec=np.asarray([opts.translate_x, 0, opts.translate_z], dtype=np.float64)
-    )
-
-    render = Render()
-    render.add_pcd(pcd=points)
-    if opts.bbox:
-        render.add_bbox(bbox=bbox)
-
-    xz_plane = np.array([[0, 0, 0], [1, 0, 0], [0, 0, 1]])
-    measures = Measures.from_pointcloud(points)
-    render.add_plane(points=xz_plane, measures=measures)
-
-    render.render()
+    bbox_to_render = None if not opts.bbox else bbox
+    render_points(points, bbox=bbox_to_render)

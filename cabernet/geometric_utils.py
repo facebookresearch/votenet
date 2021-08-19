@@ -65,9 +65,15 @@ def intersect_bbox_aligned(pointcloud: np.ndarray, bbox: np.ndarray, tolerance: 
     :return: bool indicating if the pointcloud intersects the axis-aligned bounding box.
     """
     measures = Measures.from_pointcloud(bbox)
-    x_intersect = (measures.min_x <= pointcloud[:, 0]).astype(np.uint8) * (pointcloud[:, 0] <= measures.max_x).astype(np.uint8)
-    y_intersect = (measures.min_y <= pointcloud[:, 1]).astype(np.uint8) * (pointcloud[:, 1] <= measures.max_y).astype(np.uint8)
-    z_intersect = (measures.min_z <= pointcloud[:, 2]).astype(np.uint8) * (pointcloud[:, 2] <= measures.max_z).astype(np.uint8)
+    x_intersect = (measures.min_x <= pointcloud[:, 0]).astype(np.uint8) * (pointcloud[:, 0] <= measures.max_x).astype(
+        np.uint8
+    )
+    y_intersect = (measures.min_y <= pointcloud[:, 1]).astype(np.uint8) * (pointcloud[:, 1] <= measures.max_y).astype(
+        np.uint8
+    )
+    z_intersect = (measures.min_z <= pointcloud[:, 2]).astype(np.uint8) * (pointcloud[:, 2] <= measures.max_z).astype(
+        np.uint8
+    )
     intersection = (x_intersect * y_intersect * z_intersect).astype(np.uint8)
     return np.sum(intersection) >= tolerance * pointcloud.shape[0]
 

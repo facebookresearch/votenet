@@ -29,25 +29,36 @@ class SuppressPrints(object):
             sys.stderr = self._original_stderr
 
 
-def load_mesh(path: Path, sample: int = None) -> Tuple[np.ndarray, np.ndarray]:
-    mesh = trimesh.load_mesh(path)
-    # if not isinstance(mesh, trimesh.Trimesh):
-    #     raise RuntimeError(f"expecting type `trimesh.Trimesh` but input has type `{type(mesh)}`")
-
+def sample_mesh(mesh: trimesh.Trimesh, sample: int = None):
     if sample:
         sampler = trimesh.sample.sample_surface if len(mesh.vertices) < sample else trimesh.sample.sample_surface_even
         with SuppressPrints():
             points, _ = sampler(mesh, sample)
     else:
         points = mesh.vertices
+    return points
+
+
+def load_mesh(path: Path, sample: int = None) -> Tuple[np.ndarray, np.ndarray]:
+    mesh = trimesh.load_mesh(path)
+
+    if isinstance(mesh, trimesh.PointCloud):
+        sample = None
+
+    if not isinstance(mesh, trimesh.Trimesh) and not isinstance(mesh, trimesh.PointCloud):
+        raise TypeError(f"expecting type `trimesh.Trimesh`/`trimesh.PointCloud` but input has type `{type(mesh)}`")
+
+    points = sample_mesh(mesh, sample)
     bbox = mesh.bounding_box.vertices
 
     return points, bbox
 
 
 def load_scene(path: Path) -> List[trimesh.Trimesh]:
-    mesh = trimesh.load_mesh(path)
+    with SuppressPrints():
+        mesh = trimesh.load_mesh(path)
+
     if not isinstance(mesh, trimesh.Scene):
-        raise RuntimeError(f"expecting type `trimesh.Scene` but input has type `{type(mesh)}`")
+        raise TypeError(f"expecting type `trimesh.Scene` but input has type `{type(mesh)}`")
 
     return [m for m in mesh.geometry.values()]

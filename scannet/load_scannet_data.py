@@ -38,7 +38,7 @@ def read_aggregation(filename):
             if label in label_to_segs:
                 label_to_segs[label].extend(segs)
             else:
-                label_to_segs[label] = segs
+                label_to_segs[label] = segs.copy()
     return object_id_to_segs, label_to_segs
 
 
